@@ -1,8 +1,8 @@
-import { AuthProvider } from '@descope/nextjs-sdk';
+import { AuthProvider } from "@descope/nextjs-sdk";
 
-import Navbar from "@/components/Navbar";
+// import Navbar from "@/components/Navbar";
 import "./globals.css";
-import Footer from "@/components/Footer";
+// import Footer from "@/components/Footer";
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -17,15 +17,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
 	return (
 		<AuthProvider projectId="P2vG4p7UDlLQapKxW9Qc1n8oDs7u">
-
-		<html lang="en">
-			<body>
-				<Navbar />
-				{children}
-				<Footer />
-			</body>
-		</html>
+			<html lang="en">
+				<body>
+					{/* <Navbar /> */}
+					{children}
+					{/* <Footer /> */}
+				</body>
+			</html>
 		</AuthProvider>
-
 	);
 }

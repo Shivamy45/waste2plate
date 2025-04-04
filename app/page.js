@@ -3,13 +3,11 @@ import React from 'react';
 import { useState } from 'react';
 import Image from 'next/image';
 
-const openAuth = () => {
-  <DescopeProvider projectId="YOUR_DESCOPE_PROJECT_ID">
-  {children}
-</DescopeProvider> 
-}
+import { useCallback } from 'react';
+
 
 const page = () => {
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 to-orange-100">
       <main className="container mx-auto px-4 py-12">
@@ -31,7 +29,7 @@ const page = () => {
                 <p className="text-gray-600 mb-6">
                   Discover local food deals, special offers, and fresh meals delivered to your doorstep.
                 </p>
-                <button onClick={openAuth} className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-full transition duration-300">
+                <button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-full transition duration-300">
                   Get In
                 </button>
               </div>
@@ -44,7 +42,7 @@ const page = () => {
                 <p className="text-gray-600 mb-6">
                   Reach more customers, reduce food waste, and grow your food business with our platform.
                 </p>
-                <button onClick={openAuth} className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full transition duration-300">
+                <button  className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full transition duration-300">
                   Get In
                 </button>
               </div>
@@ -55,5 +53,6 @@ const page = () => {
     </div>
   );
 };
+
 
 export default page;

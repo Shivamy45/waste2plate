@@ -13,12 +13,14 @@
     "@descope/react-sdk": "^2.13.1",
     "@descope/web-component": "^3.40.8",
     "@hookform/resolvers": "^5.0.1",
+    "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-navigation-menu": "^1.2.5",
     "@radix-ui/react-radio-group": "^1.2.3",
     "@radix-ui/react-slot": "^1.1.2",
     "@shadcn/ui": "^0.0.4",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "firebase": "^11.6.0",
     "lucide-react": "^0.485.0",
     "next": "15.2.4",
     "next-auth": "^4.24.11",
@@ -33,8 +35,11 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/node": "22.14.0",
+    "@types/react": "19.1.0",
     "eslint": "^9",
     "eslint-config-next": "15.2.4",
-    "tailwindcss": "^4"
+    "tailwindcss": "^4",
+    "typescript": "5.8.2"
   }
 }

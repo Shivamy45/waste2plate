@@ -28,13 +28,13 @@ const foodAlertSchema = z.object({
 
 
 export default function FoodAlertForm() {
-	const [imagePreview, setImagePreview] = (useState < string) | (null > null);
+	const [imagePreview, setImagePreview] = useState(null);
 
 	const {
 		register,
 		handleSubmit,
 		setValue,
-		formState: { errors },
+		formState: { errors, isSubmitting },
 	} = useForm <
 	FoodAlertFormData >
 	{
@@ -171,11 +171,10 @@ export default function FoodAlertForm() {
 						min={1}
 					/>
 				</div>
-
 				<Button
 					type="submit"
 					className="w-full bg-white text-black hover:bg-gray-300">
-					Start Giveaway
+					{isSubmitting  ? "Start GiveAway" : "Starting..."}
 				</Button>
 			</form>
 		</div>
