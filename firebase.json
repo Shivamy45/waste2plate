@@ -3,17 +3,6 @@
 		"rules": "firestore.rules",
 		"indexes": "firestore.indexes.json"
 	},
-	"hosting": {
-		"site": "waste2plate-c4173",
-		"public": "out",
-		"ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-		"rewrites": [
-			{
-				"source": "**",
-				"function": "nextApp"
-			}
-		]
-	},
 	"functions": {
 		"source": "./functions"
 	}
