@@ -77,8 +77,6 @@ const Page = () => {
 						};
 					})
 					.filter((alert) => {
-						const startTime = toDate(alert.startTime);
-						const endTime = toDate(alert.endTime);
 						const now = new Date();
 						console.log(alert.distance, alert.status);
 						console.log(startTime, now, endTime);
