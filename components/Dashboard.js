@@ -1,9 +1,10 @@
 import React from 'react'
+import FoodAlertForm from './FoodAlertForm'
 
 const Dashboard = () => {
   return (
-    <div>
-      Dashboard for alerting
+    <div className='bg-amber-200'>
+      <FoodAlertForm />
     </div>
   )
 }

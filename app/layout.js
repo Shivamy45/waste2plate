@@ -1,3 +1,5 @@
+import { AuthProvider } from '@descope/nextjs-sdk';
+
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 import Footer from "@/components/Footer";
@@ -14,6 +16,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
 	return (
+		<AuthProvider projectId="P2vG4p7UDlLQapKxW9Qc1n8oDs7u">
+
 		<html lang="en">
 			<body>
 				<Navbar />
@@ -21,5 +25,7 @@ export default function RootLayout({ children }) {
 				<Footer />
 			</body>
 		</html>
+		</AuthProvider>
+
 	);
 }
