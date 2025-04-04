@@ -91,8 +91,6 @@ const Page = () => {
 						);
 					});
 
-				// Optional: Sort by closest first
-				fetchedAlerts.sort((a, b) => a.distance - b.distance);
 
 				setAlerts(fetchedAlerts);
 				setLoading(false);
