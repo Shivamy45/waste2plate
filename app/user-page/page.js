@@ -4,26 +4,29 @@ import React, { useState, useEffect } from "react";
 import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { getDistance } from "geolib";
 
-const MainPage = () => {
+const Page = () => {
 	const [alerts, setAlerts] = useState([]);
 	const [loading, setLoading] = useState(true);
-	const [user, setUser] = useState(null); // Store logged-in user
+	const [user, setUser] = useState(null);
+	const [userLocation, setUserLocation] = useState(null);
 
-	// Fetch the logged-in user
+	// Auth listener
 	useEffect(() => {
 		const auth = getAuth();
 		const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
 			setUser(currentUser);
+			console.log(currentUser);
 		});
-		return () => unsubscribe(); // Cleanup
+		return () => unsubscribe();
 	}, []);
 
-	// Function to update user location in Firestore
+	// Update user location in Firestore
 	const updateUserLocation = (latitude, longitude) => {
-		if (!user?.uid) return; // Ensure user is logged in
+		if (!user?.uid) return;
 
-		const userDocRef = doc(db, "users", user.uid); // Reference to the user's document
+		const userDocRef = doc(db, "users", user.uid);
 		updateDoc(userDocRef, {
 			location: { latitude, longitude },
 		})
@@ -31,12 +34,13 @@ const MainPage = () => {
 			.catch((error) => console.error("Error updating location:", error));
 	};
 
-	// Fetch User Location when user logs in
+	// Get user's current location
 	useEffect(() => {
 		if (user && "geolocation" in navigator) {
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
 					const { latitude, longitude } = position.coords;
+					setUserLocation({ latitude, longitude });
 					updateUserLocation(latitude, longitude);
 				},
 				(error) => console.error("Error getting location:", error),
@@ -45,15 +49,51 @@ const MainPage = () => {
 		}
 	}, [user]);
 
-	// Fetch Real-time Food Alerts
+	// Fetch food alerts and calculate distances
 	useEffect(() => {
 		const unsubscribe = onSnapshot(
 			collection(db, "food_alerts"),
 			(snapshot) => {
-				const fetchedAlerts = snapshot.docs.map((doc) => ({
-					id: doc.id,
-					...doc.data(),
-				}));
+				const fetchedAlerts = snapshot.docs
+					.map((doc) => {
+						const data = doc.data();
+						let distance = null;
+
+						if (userLocation && data.location) {
+							try {
+								const distInMeters = getDistance(userLocation, {
+									latitude: data.location.latitude,
+									longitude: data.location.longitude,
+								});
+								distance = distInMeters / 1000; // km
+							} catch (err) {
+								console.error("Distance calc error:", err);
+							}
+						}
+
+						return {
+							id: doc.id,
+							...data,
+							distance,
+						};
+					})
+					.filter((alert) => {
+						const startTime = new Date(alert.startTime);
+						const endTime = new Date(alert.endTime);
+						const now = new Date();
+
+						return (
+							alert.distance !== null &&
+							alert.distance <= 5 &&
+							alert.status === "available" &&
+							startTime <= now &&
+							endTime >= now
+						);
+					});
+
+				// Optional: Sort by closest first
+				fetchedAlerts.sort((a, b) => a.distance - b.distance);
+
 				setAlerts(fetchedAlerts);
 				setLoading(false);
 			},
@@ -62,23 +102,28 @@ const MainPage = () => {
 				setLoading(false);
 			}
 		);
-
-		return () => unsubscribe(); // Cleanup on unmount
-	}, []);
+		return () => unsubscribe();
+	}, [userLocation]);
 
 	if (loading) return <p className="text-center mt-10">Loading...</p>;
 
 	return (
-		<div className="p-4 bg-origin-padding grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    {alerts.length === 0 ? (
-        <p className="col-span-full text-center">No food alerts available.</p>
-    ) : (
-        alerts.map((alert) => (
-            <FoodAlertCard key={alert.id} alert={alert} />
-        ))
-    )}
-</div>
+		<div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+			{alerts.length === 0 ? (
+				<p className="col-span-full text-center">
+					No food alerts available.
+				</p>
+			) : (
+				alerts.map((alert) => (
+					<FoodAlertCard
+						key={alert.id}
+						alert={alert}
+						userLocation={userLocation}
+					/>
+				))
+			)}
+		</div>
 	);
 };
 
-export default MainPage;
+export default Page;
