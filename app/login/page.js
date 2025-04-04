@@ -1,4 +1,5 @@
 "use client";
+import { ToastContainer, toast, Slide } from "react-toastify";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { auth, db } from "../../firebase/config";
@@ -51,12 +52,24 @@ export default function LoginPage() {
 				router.push("/user-page");
 			}
 		} catch (err) {
-			alert(err.message);
+			//alert(err.message);
+			toast(err.message);
 		}
 	};
+	
 
 	return (
 		<div className="flex justify-center items-center min-h-screen bg-gray-100">
+			<ToastContainer
+				position="top-right"
+				autoClose={1000}
+				hideProgressBar={false}
+				newestOnTop={true}
+				closeOnClick={false}
+				rtl={false}
+				theme="dark"
+				transition={Slide}
+			/>
 			<div className="bg-white p-6 rounded-xl shadow-md w-full max-w-md space-y-4">
 				<h1 className="text-2xl font-bold text-center">
 					{isSignup ? "Sign Up" : "Login"}

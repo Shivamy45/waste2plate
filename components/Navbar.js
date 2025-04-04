@@ -64,13 +64,8 @@ const Navbar = () => {
 				<div className="rounded-3xl p-2 cursor-pointer border-2">
 					<FaBell size={21} />
 				</div>
-				<Button
-					asChild
-					className={"btn text-black"}
-					onClick={() => router.push("/login")}>
-					<Link href="/sign-in">Login</Link>
-				</Button>
 			</div>
+					{/* if(isSignup=? */}
 		</nav>
 	);
 };

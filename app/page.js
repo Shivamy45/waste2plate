@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import Link from "next/link";
+import Extension from "@/components/extension";
 
 const page = () => {
 	return (
@@ -8,7 +9,7 @@ const page = () => {
 			<main className="container mx-auto px-4 py-12">
 				<section className="text-center mb-16">
 					<h2 className="text-4xl font-bold text-gray-800 mb-4">
-						Discover Delicious Food Near You
+						Discover Free Food Near You
 					</h2>
 					<p className="text-xl text-gray-600 max-w-2xl mx-auto">
 						Connect with local food providers or find hungry
@@ -32,7 +33,7 @@ const page = () => {
 									and fresh meals delivered to your doorstep.
 								</p>
 								<button className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-full transition duration-300">
-									Get In
+									<Link href="/login">Get In</Link>
 								</button>
 							</div>
 						</div>
@@ -54,8 +55,14 @@ const page = () => {
 						</div>
 					</div>
 				</div>
+
+				<Extension />
 			</main>
 		</div>
+
+		
+
+		
 	);
 };
 

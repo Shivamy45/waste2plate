@@ -1,4 +1,5 @@
 "use client";
+import { ToastContainer, toast, Slide } from "react-toastify";
 import { useState } from "react";
 import { auth, db } from "../firebase/config";
 import {
@@ -50,7 +51,8 @@ export default function LoginForm() {
 				router.push("/user-page");
 			}
 		} catch (err) {
-			alert(err.message);
+			//alert(err.message);
+			toast(err.message);
 		}
 	};
 
@@ -59,6 +61,17 @@ export default function LoginForm() {
 			<h2 className="text-lg font-semibold">
 				{isSignup ? "Sign Up" : "Login"}
 			</h2>
+			
+			<ToastContainer
+    position="top-right"
+    autoClose={1000}
+    hideProgressBar={false}
+    newestOnTop={true}
+    closeOnClick={false}
+    rtl={false}
+    theme="dark"
+    transition={Slide}
+/>
 			<input
 				type="email"
 				placeholder="Email"
