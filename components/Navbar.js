@@ -5,6 +5,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { FaBell } from "react-icons/fa";
+import { useRouter } from "next/navigation";
 
 import {
 	NavigationMenu,
@@ -16,6 +17,7 @@ import {
 
 const Navbar = () => {
 	const [dropdownOpen, setDropdownOpen] = useState(false);
+	const router = useRouter();
 
 	return (
 		<nav className="flex items-center justify-between px-5 py-2">
@@ -62,7 +64,10 @@ const Navbar = () => {
 				<div className="rounded-3xl p-2 cursor-pointer border-2">
 					<FaBell size={21} />
 				</div>
-				<Button asChild className={"btn text-black"}>
+				<Button
+					asChild
+					className={"btn text-black"}
+					onClick={() => router.push("/login")}>
 					<Link href="/sign-in">Login</Link>
 				</Button>
 			</div>
