@@ -43,7 +43,7 @@ const Extension = () => {
 
       {/* Help end hunger section */}
       <div className="border-2 border-orange-300 bg-white mx-auto max-w-md p-6 mb-8 shadow-lg">
-        <h2 className="text-2xl font-handwriting text-center">HELP END HUNGER TODAY</h2>
+        <h2 className="text-2xl font-handwriting text-center">HELP SAVE FOOD TODAY</h2>
       </div>
     </div>
   );

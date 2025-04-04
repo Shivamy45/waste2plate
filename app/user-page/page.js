@@ -36,7 +36,7 @@ const Page = () => {
 
 	// Get user's current location
 	useEffect(() => {
-		if (user && "geolocation" in navigator) {
+		if ("geolocation" in navigator) {
 			navigator.geolocation.getCurrentPosition(
 				(position) => {
 					const { latitude, longitude } = position.coords;
@@ -47,7 +47,7 @@ const Page = () => {
 				{ enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
 			);
 		}
-	}, [user]);
+	}, []);
 
 	// Fetch food alerts and calculate distances
 	useEffect(() => {
