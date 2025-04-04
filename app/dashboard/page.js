@@ -1,12 +1,12 @@
-import Dashboard from '@/components/Dashboard'
-import React from 'react'
+import FoodAlertForm from "../../components/FoodAlertForm";
+import React from "react";
 
 const page = () => {
-  return (
-    <div>
-      <Dashboard />
-    </div>
-  )
-}
+	return (
+		<div>
+			<FoodAlertForm />
+		</div>
+	);
+};
 
-export default page
+export default page;
