@@ -48,7 +48,6 @@ const Page = () => {
 			);
 		}
 	}, []);
-
 	// Fetch food alerts and calculate distances
 	useEffect(() => {
 		const unsubscribe = onSnapshot(
@@ -78,16 +77,15 @@ const Page = () => {
 						};
 					})
 					.filter((alert) => {
-						const startTime = new Date(alert.startTime);
-						const endTime = new Date(alert.endTime);
+						const startTime = toDate(alert.startTime);
+						const endTime = toDate(alert.endTime);
 						const now = new Date();
-
+						console.log(alert.distance, alert.status);
+						console.log(startTime, now, endTime);
 						return (
 							alert.distance !== null &&
 							alert.distance <= 5 &&
-							alert.status === "available" &&
-							startTime <= now &&
-							endTime >= now
+							alert.status === "available"
 						);
 					});
 
