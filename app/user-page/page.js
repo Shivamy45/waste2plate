@@ -79,7 +79,6 @@ const Page = () => {
 					.filter((alert) => {
 						const now = new Date();
 						console.log(alert.distance, alert.status);
-						console.log(startTime, now, endTime);
 						return (
 							alert.distance !== null &&
 							alert.distance <= 5 &&
