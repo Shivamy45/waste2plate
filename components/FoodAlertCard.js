@@ -1,154 +1,77 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { MapPin, Utensils } from "lucide-react";
-import { doc, updateDoc } from "firebase/firestore";
-import { db } from "@/firebase/config";
-import React, { useState, useEffect, useRef } from "react";
-import { ToastContainer, toast, Slide } from "react-toastify";
+"use client";
 import { motion } from "framer-motion";
-import Link from "next/link";
+import { FaUtensils, FaMapMarkerAlt, FaClock } from "react-icons/fa";
+import ClaimFoodAlert from "./ClaimFoodAlert";
 
-const FoodAlertCard = ({ alert, userLocation }) => {
-	const [claimed, setClaimed] = useState(false);
-	const [distanceKm, setDistanceKm] = useState(null);
-	const [isLoading, setIsLoading] = useState(false);
-	const buttonRef = useRef(null);
-
-	// Fetch road distance from your API
-	const getRoadDistance = async () => {
-		if (!userLocation || !alert.location) return;
-
-		const origin = `${userLocation.latitude},${userLocation.longitude}`;
-		const destination = `${alert.location.latitude},${alert.location.longitude}`;
-
-		try {
-			const res = await fetch("/api/distance", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ origin, destination }),
-			});
-
-			const data = await res.json();
-
-			if (res.ok && data.distance) {
-				setDistanceKm(data.distance); // "4.6 km"
-			} else {
-				console.error("API error:", data);
-			}
-		} catch (error) {
-			console.error("Error fetching road distance:", error);
-		}
-	};
-
-	useEffect(() => {
-		getRoadDistance();
-	}, [userLocation, alert.location]);
-
-	const handleClaim = async (e) => {
-		e.preventDefault(); // Prevent event bubbling
-		if (isLoading) return;
-		
-		setIsLoading(true);
-		try {
-			if (claimed) {
-				setClaimed(false);
-				const alertRef = doc(db, "food_alerts", alert.id);
-				await updateDoc(alertRef, {
-					slots: alert.slots + 1,
-				});
-				toast("Your slot has been cancelled!");
-			} else if (alert.slots <= 0) {
-				toast("No slots left!");
-			} else {
-				const alertRef = doc(db, "food_alerts", alert.id);
-				await updateDoc(alertRef, {
-					slots: alert.slots - 1,
-				});
-				setClaimed(true);
-				toast("You have claimed this giveaway!");
-			}
-		} catch (error) {
-			console.error("Error:", error);
-			toast("Failed to process your request.");
-		} finally {
-			setIsLoading(false);
-		}
-	};
-
-	if (!alert) return null;
+export default function FoodAlertCard({ alert, userLocation }) {
+	const { 
+		id,
+		restaurant_name,
+		food_type,
+		quantity,
+		discount,
+		location,
+		status,
+		timestamp
+	} = alert;
 
 	return (
-		<Card className="w-full max-w-md shadow-lg rounded-2xl">
-			<ToastContainer
-				position="top-right"
-				autoClose={1000}
-				hideProgressBar={false}
-				newestOnTop={true}
-				closeOnClick={false}
-				rtl={false}
-				theme="dark"
-				transition={Slide}
-			/>
-
-			<CardHeader>
-				<CardTitle className="text-xl font-semibold">
-					{alert.orgName || "Unknown"}
-				</CardTitle>
-			</CardHeader>
-
-			<CardContent className="space-y-2">
-				<div className="flex items-center gap-2 text-gray-600">
-					<Utensils className="w-5 h-5 text-orange-500" />
-					<span className="text-lg font-medium">
-						{alert.foodType}
+		<motion.div
+			initial={{ opacity: 0, y: 20 }}
+			animate={{ opacity: 1, y: 0 }}
+			className="bg-white rounded-xl shadow-lg overflow-hidden"
+		>
+			<div className="p-6">
+				<div className="flex items-center justify-between mb-4">
+					<h3 className="text-xl font-semibold text-gray-900">{restaurant_name}</h3>
+					<span className={`px-3 py-1 rounded-full text-sm font-medium ${
+						status === "available" ? "bg-green-100 text-green-800" :
+						status === "claimed" ? "bg-yellow-100 text-yellow-800" :
+						"bg-red-100 text-red-800"
+					}`}>
+						{status}
 					</span>
 				</div>
 
-				<div className="flex items-center gap-2 text-gray-600">
-					<MapPin className="w-5 h-5 text-red-500" />
-					<span>{alert.city || "N/A"}</span>
-				</div>
-
-				<p className="text-gray-700">Quantity: {alert.slots}</p>
-
-				<div className="flex justify-between mt-4">
-					<div>
-						{distanceKm && (
-							<p className="text-gray-600 text-sm">
-								Distance: {distanceKm}
-							</p>
-						)}
+				<div className="space-y-4">
+					<div className="flex items-center text-gray-600">
+						<FaUtensils className="mr-2" />
+						<span>{food_type}</span>
 					</div>
 
-					<Link href={`/alert/${alert.id}`} className="block">
-						<motion.button
-							ref={buttonRef}
-							onClick={handleClaim}
-							disabled={isLoading}
-							whileHover={{ scale: 1.05 }}
-							whileTap={{ scale: 0.95 }}
-							transition={{ duration: 0.1 }}
-							className={`w-full h-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg ${
-								isLoading ? 'opacity-75 cursor-not-allowed' : ''
-							}`}
-						>
-							{isLoading ? (
-								<>
-									<svg className="animate-spin h-4 w-4 mr-2 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-										<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-									</svg>
-									Processing...
-								</>
-							) : (
-								claimed ? "Cancel" : "Claim"
-							)}
-						</motion.button>
-					</Link>
-				</div>
-			</CardContent>
-		</Card>
-	);
-};
+					<div className="flex items-center text-gray-600">
+						<FaMapMarkerAlt className="mr-2" />
+						<span>{location ? `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}` : "Location not available"}</span>
+					</div>
 
-export default FoodAlertCard;
+					<div className="flex items-center text-gray-600">
+						<FaClock className="mr-2" />
+						<span>{new Date(timestamp?.toDate()).toLocaleString()}</span>
+					</div>
+
+					<div className="grid grid-cols-2 gap-4">
+						<div className="bg-gray-50 p-3 rounded-lg">
+							<p className="text-sm text-gray-500">Quantity</p>
+							<p className="font-medium">{quantity}</p>
+						</div>
+						<div className="bg-gray-50 p-3 rounded-lg">
+							<p className="text-sm text-gray-500">Discount</p>
+							<p className="font-medium">{discount}</p>
+						</div>
+					</div>
+				</div>
+
+				{status === "available" && (
+					<div className="mt-6">
+						<ClaimFoodAlert 
+							alertId={id}
+							onClaimSuccess={() => {
+								// Refresh the alerts list or update UI
+							}}
+						/>
+					</div>
+				)}
+			</div>
+		</motion.div>
+	);
+}
