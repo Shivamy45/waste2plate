@@ -6,6 +6,7 @@ import { auth, db } from "../../firebase/config";
 import { motion, AnimatePresence } from "framer-motion";
 import {
 	createUserWithEmailAndPassword,
+	
 	signInWithEmailAndPassword,
 } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
