@@ -15,17 +15,15 @@ export default function QRDonationPage() {
         {/* QR Code Placeholder */}
         <div className="w-64 h-64 mx-auto border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center mb-6">
           <div className="text-gray-500">
-            <p className="font-medium">Your QR Code Here</p>
-            <p className="text-sm mt-2">Place your payment QR code in this area</p>
           </div>
           
-          {/* Uncomment and modify this to use your actual QR code 
+          {
           <img 
-            src="/your-qr-code.png" 
+            src="/payment_qr.jpg" 
             alt="Donation QR Code" 
             className="w-full h-full object-contain"
           />
-          */}
+          }
         </div>
         
         <p className="text-gray-700 font-medium">
