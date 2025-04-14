@@ -133,7 +133,9 @@
   background-color: var(--accent-orange);
   font-weight: bold;
   cursor: pointer;
+  transition: transform 0.05s ease-in-out;
 }
 .btn:hover{
   background-color: var(--accent-orange-hover);
+  transform: scale(1.05);
 }

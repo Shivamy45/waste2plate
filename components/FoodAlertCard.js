@@ -3,12 +3,16 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Utensils } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/firebase/config";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ToastContainer, toast, Slide } from "react-toastify";
+import { motion } from "framer-motion";
+import Link from "next/link";
 
 const FoodAlertCard = ({ alert, userLocation }) => {
 	const [claimed, setClaimed] = useState(false);
 	const [distanceKm, setDistanceKm] = useState(null);
+	const [isLoading, setIsLoading] = useState(false);
+	const buttonRef = useRef(null);
 
 	// Fetch road distance from your API
 	const getRoadDistance = async () => {
@@ -40,34 +44,34 @@ const FoodAlertCard = ({ alert, userLocation }) => {
 		getRoadDistance();
 	}, [userLocation, alert.location]);
 
-	const handleClaim = async () => {
-		if (claimed) {
-			setClaimed(false);
-			try {
+	const handleClaim = async (e) => {
+		e.preventDefault(); // Prevent event bubbling
+		if (isLoading) return;
+		
+		setIsLoading(true);
+		try {
+			if (claimed) {
+				setClaimed(false);
 				const alertRef = doc(db, "food_alerts", alert.id);
 				await updateDoc(alertRef, {
 					slots: alert.slots + 1,
 				});
 				toast("Your slot has been cancelled!");
-			} catch (error) {
-				console.error("Error cancelling:", error);
-				toast("Failed to cancel.");
-			}
-		} else if (alert.slots <= 0) {
-			toast("No slots left!");
-			return;
-		} else {
-			try {
+			} else if (alert.slots <= 0) {
+				toast("No slots left!");
+			} else {
 				const alertRef = doc(db, "food_alerts", alert.id);
 				await updateDoc(alertRef, {
 					slots: alert.slots - 1,
 				});
 				setClaimed(true);
 				toast("You have claimed this giveaway!");
-			} catch (error) {
-				console.error("Error claiming alert:", error);
-				toast("Failed to claim giveaway.");
 			}
+		} catch (error) {
+			console.error("Error:", error);
+			toast("Failed to process your request.");
+		} finally {
+			setIsLoading(false);
 		}
 	};
 
@@ -116,11 +120,31 @@ const FoodAlertCard = ({ alert, userLocation }) => {
 						)}
 					</div>
 
-					<Button
-						onClick={handleClaim}
-						className="bg-orange-500 hover:bg-orange-600 text-white">
-						{claimed ? "Cancel" : "Claim"}
-					</Button>
+					<Link href={`/alert/${alert.id}`} className="block">
+						<motion.button
+							ref={buttonRef}
+							onClick={handleClaim}
+							disabled={isLoading}
+							whileHover={{ scale: 1.05 }}
+							whileTap={{ scale: 0.95 }}
+							transition={{ duration: 0.1 }}
+							className={`w-full h-full bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg ${
+								isLoading ? 'opacity-75 cursor-not-allowed' : ''
+							}`}
+						>
+							{isLoading ? (
+								<>
+									<svg className="animate-spin h-4 w-4 mr-2 inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+										<circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+										<path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+									</svg>
+									Processing...
+								</>
+							) : (
+								claimed ? "Cancel" : "Claim"
+							)}
+						</motion.button>
+					</Link>
 				</div>
 			</CardContent>
 		</Card>
