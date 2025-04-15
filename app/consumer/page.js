@@ -43,13 +43,19 @@ const Page = () => {
 					setUserLocation({ latitude, longitude });
 					updateUserLocation(latitude, longitude);
 				},
-				(error) => console.error("Error getting location:", error),
+				(error) => {
+					console.error("Error getting location:", error);
+					setLoading(false); // Stop loading if location fetch fails
+				},
 				{ enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
 			);
 		}
 	}, []);
+
 	// Fetch food alerts and calculate distances
 	useEffect(() => {
+		if (!userLocation) return;  // Don't fetch alerts if userLocation is not available
+
 		const unsubscribe = onSnapshot(
 			collection(db, "food_alerts"),
 			(snapshot) => {
@@ -78,14 +84,12 @@ const Page = () => {
 					})
 					.filter((alert) => {
 						const now = new Date();
-						console.log(alert.distance, alert.status);
 						return (
 							alert.distance !== null &&
 							alert.distance <= 5 &&
 							alert.status === "available"
 						);
 					});
-
 
 				setAlerts(fetchedAlerts);
 				setLoading(false);
@@ -96,7 +100,7 @@ const Page = () => {
 			}
 		);
 		return () => unsubscribe();
-	}, [userLocation]);
+	}, [userLocation]);  // Only fetch when userLocation is available
 
 	if (loading) return <p className="text-center mt-10">Loading...</p>;
 

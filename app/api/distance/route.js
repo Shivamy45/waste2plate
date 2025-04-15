@@ -1,11 +1,15 @@
-// app/api/distance/route.js
 export async function POST(req) {
 	const body = await req.json();
 	const { origin, destination } = body;
 
+	// Validate origin and destination (basic check for empty strings)
+	if (!origin || !destination || typeof origin !== 'string' || typeof destination !== 'string') {
+		return new Response("Invalid input", { status: 400 });
+	}
+
 	const apiKey = process.env.GOOGLE_MAPS_API_KEY; // Secure API key in .env
 
-	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origin}&destinations=${destination}&key=${apiKey}`;
+	const url = `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${encodeURIComponent(origin)}&destinations=${encodeURIComponent(destination)}&key=${apiKey}`;
 
 	try {
 		const response = await fetch(url);

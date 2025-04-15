@@ -8,9 +8,9 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { onMessage } from "firebase/messaging";
 import { toast } from "react-toastify";
-import { auth, messaging } from '../firebase/config';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { getToken } from 'firebase/messaging';
+import { auth, messaging } from "../firebase/config";
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import { getToken } from "firebase/messaging";
 
 const Navbar = () => {
 	const router = useRouter();
@@ -50,35 +50,40 @@ const Navbar = () => {
 	// Add click outside handler
 	useEffect(() => {
 		const handleClickOutside = (event) => {
-			if (showNotifications && 
-				dropdownRef.current && 
+			if (
+				showNotifications &&
+				dropdownRef.current &&
 				!dropdownRef.current.contains(event.target) &&
-				bellRef.current && 
-				!bellRef.current.contains(event.target)) {
+				bellRef.current &&
+				!bellRef.current.contains(event.target)
+			) {
 				setShowNotifications(false);
 			}
 		};
 
-		document.addEventListener('mousedown', handleClickOutside);
+		document.addEventListener("mousedown", handleClickOutside);
 		return () => {
-			document.removeEventListener('mousedown', handleClickOutside);
+			document.removeEventListener("mousedown", handleClickOutside);
 		};
 	}, [showNotifications]);
 
 	useEffect(() => {
 		if (!messaging) return;
-		
+
 		// Listen for foreground messages
 		const unsubscribe = onMessage(messaging, (payload) => {
-			console.log('Received foreground message:', payload);
-			
+			console.log("Received foreground message:", payload);
+
 			// Add new notification to the list
-			setNotifications(prev => [{
-				id: Date.now(),
-				message: payload.notification?.body || 'New notification',
-				time: 'Just now',
-				title: payload.notification?.title || 'New Alert'
-			}, ...prev]);
+			setNotifications((prev) => [
+				{
+					id: Date.now(),
+					message: payload.notification?.body || "New notification",
+					time: "Just now",
+					title: payload.notification?.title || "New Alert",
+				},
+				...prev,
+			]);
 
 			// Trigger bell shake animation
 			setIsBellShaking(true);
@@ -87,7 +92,9 @@ const Navbar = () => {
 			// Show toast notification
 			toast.info(
 				<div>
-					<h3 className="font-semibold">{payload.notification?.title}</h3>
+					<h3 className="font-semibold">
+						{payload.notification?.title}
+					</h3>
 					<p>{payload.notification?.body}</p>
 				</div>,
 				{
@@ -124,25 +131,25 @@ const Navbar = () => {
 	const requestNotificationPermission = async () => {
 		try {
 			const permission = await Notification.requestPermission();
-			if (permission === 'granted') {
+			if (permission === "granted") {
 				const token = await getToken(messaging, {
 					vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
 				});
-				console.log('FCM Token:', token);
+				console.log("FCM Token:", token);
 			}
 		} catch (error) {
-			console.error('Error getting FCM token:', error);
+			console.error("Error getting FCM token:", error);
 		}
 	};
 
 	const handleSignOut = async () => {
 		try {
 			await signOut(auth);
-			toast.success('Signed out successfully');
-			router.push('/');
+			toast.success("Signed out successfully");
+			router.push("/");
 		} catch (error) {
-			console.error('Error signing out:', error);
-			toast.error('Error signing out');
+			console.error("Error signing out:", error);
+			toast.error("Error signing out");
 		}
 	};
 
@@ -159,7 +166,12 @@ const Navbar = () => {
 					whileTap={{ scale: 0.95 }}
 					transition={{ duration: 0.1 }}
 					className="cursor-pointer">
-					<Image src="/logo.png" alt="Logo" width={120} height={80} />
+					<Image
+						src="/logo.png"
+						alt="Logo"
+						height={80}
+						width={120}
+					/>
 				</motion.div>
 			</Link>
 

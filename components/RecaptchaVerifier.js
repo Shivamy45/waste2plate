@@ -4,110 +4,91 @@ import { app } from "../firebase/config";
 
 const RecaptchaVerifierComponent = ({ onVerifierReady }) => {
 	const [isBrowser, setIsBrowser] = useState(false);
+	const [isInitialized, setIsInitialized] = useState(false);
 	const recaptchaVerifierRef = useRef(null);
 	const containerRef = useRef(null);
 
 	useEffect(() => {
-		// Guard against SSR
 		if (typeof window === "undefined") return;
-
-		// Set browser state
 		setIsBrowser(true);
 
 		const initializeRecaptcha = async () => {
-			try {
-				// Check if recaptcha is already initialized globally
-				if (window.recaptchaVerifier) {
-					console.log("Using existing reCAPTCHA instance");
-					recaptchaVerifierRef.current = window.recaptchaVerifier;
-					if (onVerifierReady) {
-						onVerifierReady(recaptchaVerifierRef.current);
-					}
-					return;
-				}
+			if (isInitialized) {
+				console.log("reCAPTCHA already initialized, skipping...");
+				return;
+			}
 
-				// Clear existing recaptcha if any
+			try {
+				// Clear existing reCAPTCHA if any
 				if (recaptchaVerifierRef.current) {
 					try {
 						recaptchaVerifierRef.current.clear();
-					} catch (error) {
-						console.warn(
-							"Error clearing existing reCAPTCHA:",
-							error
-						);
+					} catch (err) {
+						console.warn("Error clearing existing reCAPTCHA:", err);
 					}
 				}
 
-				// Ensure container exists
-				const container = document.getElementById(
-					"recaptcha-container"
-				);
+				if (window.recaptchaVerifier) {
+					console.log("Cleaning up old global reCAPTCHA");
+					delete window.recaptchaVerifier;
+				}
+
+				const container = document.getElementById("recaptcha-container");
 				if (!container) {
 					console.log("Waiting for reCAPTCHA container...");
 					return;
 				}
 
-				// Initialize Firebase Auth
 				const auth = getAuth(app);
 				if (!auth) {
-					console.error("Firebase Auth initialization failed");
+					console.error("Firebase Auth not initialized");
 					return;
 				}
 
-				// Create reCAPTCHA options without disabling verification
-				const recaptchaOptions = {
-					size: "invisible",
-					callback: (response) => {
-						console.log("reCAPTCHA verified:", response);
-					},
-					"expired-callback": () => {
-						console.log("reCAPTCHA expired");
-					},
-				};
-
-				console.log(
-					"Initializing new reCAPTCHA instance with options:",
-					recaptchaOptions
-				);
 				recaptchaVerifierRef.current = new RecaptchaVerifier(
 					"recaptcha-container",
-					recaptchaOptions,
+					{
+						size: "invisible",
+						callback: (response) => {
+							console.log("reCAPTCHA verified:", response);
+						},
+						"expired-callback": () => {
+							console.log("reCAPTCHA expired");
+						}
+					},
 					auth
 				);
 
-				// Store in window for reuse
 				window.recaptchaVerifier = recaptchaVerifierRef.current;
 
 				if (onVerifierReady) {
 					onVerifierReady(recaptchaVerifierRef.current);
 				}
 
-				console.log("reCAPTCHA initialized successfully");
+				setIsInitialized(true);
+				console.log("reCAPTCHA initialized");
 			} catch (error) {
 				console.error("Error initializing reCAPTCHA:", error);
 			}
 		};
 
-		// Try to initialize reCAPTCHA immediately
 		initializeRecaptcha();
 
-		// Cleanup
 		return () => {
-			if (recaptchaVerifierRef.current) {
-				try {
+			try {
+				if (recaptchaVerifierRef.current) {
 					recaptchaVerifierRef.current.clear();
-					console.log("reCAPTCHA cleared");
-				} catch (error) {
-					console.error("Error clearing reCAPTCHA:", error);
+					console.log("reCAPTCHA cleared on unmount");
 				}
+				delete window.recaptchaVerifier;
+				setIsInitialized(false);
+			} catch (error) {
+				console.error("Error cleaning up reCAPTCHA:", error);
 			}
 		};
-	}, [onVerifierReady]);
+	}, [onVerifierReady, isInitialized]);
 
-	// Return null during SSR
-	if (!isBrowser) {
-		return null;
-	}
+	if (!isBrowser) return null;
 
 	return (
 		<div

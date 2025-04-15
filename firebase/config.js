@@ -2,7 +2,7 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAuth, RecaptchaVerifier } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
-import { getMessaging, isSupported, getToken } from "firebase/messaging";
+import { getMessaging, getToken } from "firebase/messaging";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -26,30 +26,31 @@ const db = getFirestore(app);
 
 // Initialize messaging only in browser environment
 let messaging = null;
-if (typeof window !== 'undefined') {
+if (typeof window !== "undefined") {
 	try {
 		messaging = getMessaging(app);
-		
+
 		// Register service worker
-		if ('serviceWorker' in navigator) {
-			navigator.serviceWorker.register('/firebase-messaging-sw.js')
+		if ("serviceWorker" in navigator) {
+			navigator.serviceWorker
+				.register("/firebase-messaging-sw.js")
 				.then((registration) => {
-					console.log('Service Worker registered:', registration);
-					
+					console.log("Service Worker registered:", registration);
+
 					// Configure VAPID key for web push notifications
 					getToken(messaging, {
 						vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY,
-						serviceWorkerRegistration: registration
+						serviceWorkerRegistration: registration,
 					}).catch((err) => {
-						console.error('Error getting FCM token:', err);
+						console.error("Error getting FCM token:", err);
 					});
 				})
 				.catch((err) => {
-					console.error('Service Worker registration failed:', err);
+					console.error("Service Worker registration failed:", err);
 				});
 		}
 	} catch (err) {
-		console.error('Error initializing messaging:', err);
+		console.error("Error initializing messaging:", err);
 	}
 }
 

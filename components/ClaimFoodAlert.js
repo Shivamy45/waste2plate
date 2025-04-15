@@ -17,7 +17,6 @@ export default function ClaimFoodAlert({ alertId, onClaimSuccess }) {
 
         setIsClaiming(true);
         try {
-            // Start a batch write to ensure both operations succeed or fail together
             const batch = db.batch();
 
             // Update the food alert status
@@ -26,14 +25,14 @@ export default function ClaimFoodAlert({ alertId, onClaimSuccess }) {
                 status: "claimed"
             });
 
-            // Create a new claimed alert document
-            const claimedAlertRef = collection(db, "claimed_alerts");
+            // Create a new claimed alert document with a generated ID
+            const newClaimedDocRef = doc(collection(db, "claimed_alerts"));
             const claimedAlertData = {
                 food_alert_id: alertId,
                 consumer_uid: auth.currentUser.uid,
                 claimedAt: serverTimestamp()
             };
-            batch.set(claimedAlertRef, claimedAlertData);
+            batch.set(newClaimedDocRef, claimedAlertData);
 
             // Commit the batch
             await batch.commit();
@@ -69,4 +68,4 @@ export default function ClaimFoodAlert({ alertId, onClaimSuccess }) {
             )}
         </button>
     );
-} 
+}

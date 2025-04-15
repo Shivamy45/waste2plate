@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getFirestore } from "firebase-admin/firestore";
+import firebase from "firebase-admin"; // Import firebase-admin to use FieldValue
 
 export async function POST(request) {
     try {
@@ -15,8 +16,9 @@ export async function POST(request) {
         const db = getFirestore();
         const tokenRef = db.collection("fcm_tokens").doc(uid);
 
-        await tokenRef.set({
-            token,
+        // Add the new token to an array of tokens
+        await tokenRef.update({
+            tokens: firebase.firestore.FieldValue.arrayUnion(token),
             updatedAt: new Date(),
         });
 
@@ -28,4 +30,4 @@ export async function POST(request) {
             { status: 500 }
         );
     }
-} 
+}

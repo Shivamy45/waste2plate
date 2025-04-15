@@ -8,7 +8,8 @@ import {
     getDoc,
     deleteDoc,
     arrayUnion,
-    arrayRemove
+    arrayRemove,
+    writeBatch
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { sendNotification } from "./sendNotification";
@@ -119,8 +120,10 @@ export const claimAlert = async (alertId) => {
         // Generate passkey
         const passkey = generatePasskey();
 
+        const batch = writeBatch(db);
+
         // Update alert with claim
-        await updateDoc(alertRef, {
+        batch.update(alertRef, {
             [`claims.${user.uid}`]: {
                 passkey,
                 claimedAt: serverTimestamp()
@@ -128,11 +131,16 @@ export const claimAlert = async (alertId) => {
         });
 
         // Notify provider
-        await sendNotification(
+        const providerNotification = sendNotification(
             alert.provider_uid,
             "New Claim",
             `Someone has claimed your food alert from ${alert.restaurant_name}.`
         );
+
+        batch.set(providerNotification);
+
+        // Commit the batch
+        await batch.commit();
 
         return passkey;
     } catch (error) {
@@ -163,8 +171,10 @@ export const unclaimAlert = async (alertId) => {
             throw new Error("You haven't claimed this alert");
         }
 
+        const batch = writeBatch(db);
+
         // Remove claim
-        await updateDoc(alertRef, {
+        batch.update(alertRef, {
             [`claims.${user.uid}`]: deleteDoc()
         });
 
@@ -174,6 +184,9 @@ export const unclaimAlert = async (alertId) => {
             "Claim Removed",
             `Someone has unclaimed your food alert from ${alert.restaurant_name}.`
         );
+
+        // Commit the batch
+        await batch.commit();
 
         return true;
     } catch (error) {
@@ -270,4 +283,4 @@ export const reportAlert = async (alertId, reason) => {
         console.error("Error reporting alert:", error);
         throw error;
     }
-}; 
+};

@@ -22,9 +22,11 @@ export async function POST(request) {
         };
 
         const messaging = getMessaging();
-        await messaging.send(message);
+        const response = await messaging.send(message);
 
-        return NextResponse.json({ success: true });
+        console.log("Notification sent successfully:", response);
+
+        return NextResponse.json({ success: true, messageId: response });
     } catch (error) {
         console.error("Error sending notification:", error);
         return NextResponse.json(
@@ -32,4 +34,4 @@ export async function POST(request) {
             { status: 500 }
         );
     }
-} 
+}

@@ -27,6 +27,13 @@ const ContactPage = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
+    // Email validation
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      toast.error("Please enter a valid email address.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const response = await fetch("/api/contact", {
         method: "POST",
@@ -47,6 +54,8 @@ const ContactPage = () => {
         subject: "",
         message: "",
       });
+      toast.dismiss(); // Clear previous toasts
+
     } catch (error) {
       toast.error("Failed to send message. Please try again.");
       console.error("Error:", error);
@@ -238,6 +247,7 @@ const ContactPage = () => {
         pauseOnFocusLoss
         draggable
         pauseOnHover
+        aria-live="assertive"
       />
     </motion.div>
   );
